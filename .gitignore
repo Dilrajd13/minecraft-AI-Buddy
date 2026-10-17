@@ -1,0 +1,13 @@
+# Secrets - never commit these (your API keys live in .env)
+.env
+.env.*
+!.env.example
+
+# Local state / installs
+node_modules/
+data/
+.venv*/
+models/
+ears.local.bat
+*.wav
+*.log

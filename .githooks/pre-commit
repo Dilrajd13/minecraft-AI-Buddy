@@ -1,0 +1,17 @@
+#!/bin/sh
+# Blocks commits that contain API keys or a .env file.
+# Enabled per clone with:  git config core.hooksPath .githooks
+
+if git diff --cached --name-only | grep -E '(^|/)\.env($|\.)' | grep -v '\.env\.example$' >/dev/null; then
+  echo "BLOCKED: you're trying to commit a .env file (it has your API keys)."
+  echo "Run: git restore --staged .env"
+  exit 1
+fi
+
+# OpenRouter keys (sk-or-...), ElevenLabs keys (sk_ + 40+ hex), and generic long secrets
+if git diff --cached -U0 | grep '^+' | grep -E 'sk-or-v1-[A-Za-z0-9]{20,}|sk_[a-f0-9]{40,}|(API_KEY|SECRET|TOKEN)=[A-Za-z0-9_\-]{16,}' >/dev/null; then
+  echo "BLOCKED: this commit looks like it contains an API key. Remove it and try again."
+  git diff --cached -U0 | grep '^+' | grep -nE 'sk-or-v1-|sk_[a-f0-9]{40,}|(API_KEY|SECRET|TOKEN)=' | sed -E 's/(sk-or-v1-|sk_)[A-Za-z0-9]+/\1****/g; s/=([A-Za-z0-9_\-]{4})[A-Za-z0-9_\-]+/=\1****/'
+  exit 1
+fi
+exit 0

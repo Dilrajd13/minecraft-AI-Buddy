@@ -1,0 +1,22 @@
+{
+  "name": "minecraft-buddy",
+  "version": "0.1.0",
+  "description": "Chasm-style AI buddy for Minecraft Java: Jev fast brain, Gemma talk brain, Parakeet ears, ElevenLabs/Piper voice.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "check": "node --check src/index.js && node src/selftest.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mineflayer": "^4.23.0",
+    "mineflayer-collectblock": "^1.4.1",
+    "mineflayer-pathfinder": "^2.4.5",
+    "mineflayer-pvp": "^1.3.2",
+    "vec3": "^0.2.0"
+  }
+}
