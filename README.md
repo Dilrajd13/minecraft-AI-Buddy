@@ -1,6 +1,9 @@
 # Minecraft Buddy
 
-A AI sidekick for Minecraft Java. He joins your world as a real player, fights, mines, follows you, trash-talks everything, talks out loud, hears you through push-to-talk, and takes override commands.
+An AI sidekick for Minecraft Java. He joins your world as a real player, fights, mines, follows you, trash-talks everything, talks out loud, hears you through push-to-talk, and takes override commands.
+
+This is heavily inspired by Chasms Halo CE video doing similar thing 
+Giving Video Game NPC's Consciousness[Giving Video Game NPC's Consciousness](https://www.youtube.com/watch?v=EOfm3h4xYU8&t=753s)
 
 ## How it works
 
