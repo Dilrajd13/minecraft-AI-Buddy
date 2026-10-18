@@ -11,3 +11,6 @@ models/
 ears.local.bat
 *.wav
 *.log
+
+# local notes, not uploaded
+INSTRUCTIONS.md

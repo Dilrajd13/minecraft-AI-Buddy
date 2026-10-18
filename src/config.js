@@ -1,4 +1,4 @@
-﻿import 'dotenv/config'
+import 'dotenv/config'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -30,7 +30,7 @@ export const config = {
   },
   talk: {
     provider: env('TALK_PROVIDER', 'openrouter'),
-    model: env('TALK_MODEL', 'google/gemma-4-26b-a4b-it'),
+    model: env('TALK_MODEL', 'google/gemma-4-31b-it'),
     ollamaUrl: env('OLLAMA_URL', 'http://localhost:11434')
   },
   tts: {
@@ -41,6 +41,10 @@ export const config = {
     piperExe: env('PIPER_EXE'),
     piperModel: env('PIPER_MODEL')
   },
+  // Model that writes code for free-form tasks (defaults to the talk model)
+  codeModel: env('CODE_MODEL') || env('TALK_MODEL', 'google/gemma-4-31b-it'),
+  // Self-directed play: when idle he picks his own activities every N seconds
+  autonomy: { on: env('AUTONOMY', 'on') !== 'off', seconds: Math.max(5, num('AUTONOMY_SECONDS', 20)) },
   earsPort: num('EARS_PORT', 3077)
 }
 
@@ -57,4 +61,16 @@ export function writeJson (name, value) {
   fs.writeFileSync(path.join(DATA_DIR, name), JSON.stringify(value, null, 2))
 }
 
-export const log = (tag, ...args) => console.log(`[${new Date().toLocaleTimeString()}] [${tag}]`, ...args)
+// Everything also goes to data/buddy.log so problems can be looked at after the window is closed
+const LOG_FILE = path.join(DATA_DIR, 'buddy.log')
+try { if (fs.statSync(LOG_FILE).size > 5e6) fs.renameSync(LOG_FILE, LOG_FILE + '.old') } catch {}
+const RECENT = [] // last log lines, for the watch page
+export const recentLogs = () => RECENT.slice()
+export const log = (tag, ...args) => {
+  const line = `[${new Date().toLocaleTimeString()}] [${tag}]`
+  console.log(line, ...args)
+  const text = args.map(a => typeof a === 'string' ? a : (a instanceof Error ? a.stack : JSON.stringify(a))).join(' ')
+  fs.appendFile(LOG_FILE, `${new Date().toISOString().slice(0, 10)} ${line} ${text}\n`, () => {})
+  RECENT.push({ t: new Date().toLocaleTimeString(), tag, text: text.slice(0, 600) })
+  if (RECENT.length > 150) RECENT.shift()
+}

@@ -7,7 +7,7 @@ import { config, log, readJson, writeJson } from './config.js'
 const SAMPLE_RATE = 22050
 
 // Speaks lines one at a time. ElevenLabs first; falls back to Piper (free, offline) when the
-// monthly free-tier characters run low, or to text-only if neither is set up.
+// monthly credits run out, or to text-only if neither is set up.
 export class Voice {
   constructor () {
     this.queue = []
@@ -22,12 +22,12 @@ export class Voice {
     return u.month === month ? u : { month, elevenChars: 0 }
   }
 
-  get elevenLeft () { return config.tts.elevenMonthlyChars - this.usage.elevenChars }
-
-  provider (text) {
+  // The local character count is only an estimate (flash voices cost less than 1 credit/char),
+  // so keep using ElevenLabs until ElevenLabs itself says the credits are gone.
+  provider () {
     const p = config.tts.provider
     const piperOk = config.tts.piperExe && fs.existsSync(config.tts.piperExe) && config.tts.piperModel
-    if (p === 'elevenlabs' && config.tts.elevenKey && config.tts.elevenVoice && this.elevenLeft - text.length > 300) return 'elevenlabs'
+    if (p === 'elevenlabs' && config.tts.elevenKey && config.tts.elevenVoice && !this.elevenOut) return 'elevenlabs'
     if ((p === 'elevenlabs' || p === 'piper') && piperOk) return 'piper'
     return 'none'
   }
@@ -44,11 +44,14 @@ export class Voice {
     while (this.queue.length) {
       const text = this.queue.shift()
       try {
-        const which = this.provider(text)
+        const which = this.provider()
         if (which === 'elevenlabs') await playPcm(await this.eleven(text))
         else if (which === 'piper') await playWavFile(await piper(text))
       } catch (err) {
         log('tts', err.message)
+        if (this.elevenOut && this.provider() === 'piper') {
+          try { await playWavFile(await piper(text)) } catch (e) { log('tts', e.message) }
+        }
       }
     }
     this.playing = false
@@ -66,14 +69,23 @@ export class Voice {
       }),
       signal: AbortSignal.timeout(15000)
     })
-    if (!res.ok) throw new Error(`ElevenLabs HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`)
+    if (!res.ok) {
+      const body = await res.text()
+      // Out of credits for the month -> stop trying until restart (falls back to Piper or text)
+      if (res.status === 402 || /quota_exceeded|insufficient|credits/i.test(body)) {
+        this.elevenOut = true
+        log('tts', 'ElevenLabs is out of credits for this month; switching to backup voice / text')
+      }
+      throw new Error(`ElevenLabs HTTP ${res.status}: ${body.slice(0, 200)}`)
+    }
     this.usage.elevenChars += text.length
     writeJson('tts-usage.json', this.usage)
     return Buffer.from(await res.arrayBuffer())
   }
 
   stats () {
-    return `voice: ${this.muted ? 'muted' : this.provider('x')}, ElevenLabs ${Math.max(0, this.elevenLeft)}/${config.tts.elevenMonthlyChars} chars left this month`
+    return `voice: ${this.muted ? 'muted' : this.provider()}${this.elevenOut ? ' (ElevenLabs out of credits)' : ''}, ` +
+      `~${this.usage.elevenChars} ElevenLabs chars sent this month (estimate; real balance is on elevenlabs.io)`
   }
 }
 

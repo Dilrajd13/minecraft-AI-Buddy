@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buddy Watch</title>
+<style>
+  :root {
+    --bg: #0f1210; --panel: #171c18; --line: #26302a; --text: #e6ece7; --muted: #8b998f;
+    --green: #5fd38a; --amber: #f2b84b; --red: #f2665e; --blue: #6cb6ff; --accent: #5fd38a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+  h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); display: inline-block; margin-right: 6px; }
+  .dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .goal { font-size: 15px; color: var(--accent); font-weight: 600; }
+  .muted { color: var(--muted); }
+  main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; padding: 16px 20px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+  .bars { display: flex; gap: 18px; align-items: center; }
+  .bar { width: 120px; height: 8px; background: #2a332d; border-radius: 4px; overflow: hidden; display: inline-block; vertical-align: middle; margin-left: 6px; }
+  .bar > i { display: block; height: 100%; }
+  .ladder { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 18px; }
+  @media (max-width: 600px) { .ladder { columns: 1; } }
+  .ladder li { padding: 3px 0; break-inside: avoid; display: flex; gap: 8px; align-items: baseline; }
+  .ladder .mark { width: 16px; text-align: center; flex: none; }
+  .done { color: var(--green); } .now { color: var(--amber); font-weight: 600; } .gave { color: var(--red); text-decoration: line-through; } .todo { color: var(--muted); }
+  .progress { height: 10px; background: #2a332d; border-radius: 5px; overflow: hidden; margin: 6px 0 12px; }
+  .progress > i { display: block; height: 100%; background: var(--green); transition: width .4s; }
+  #log { font: 12.5px/1.5 ui-monospace, Consolas, monospace; height: 460px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+  #log .t { color: var(--muted); } #log .tag { color: var(--blue); }
+  #log .say .tag { color: var(--green); } #log .task .tag, #log .practice .tag { color: var(--amber); } #log .error .tag, #log .bot .tag { color: var(--red); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: #212922; border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; font-size: 12.5px; }
+  .list { margin: 0; padding-left: 18px; } .list li { margin: 3px 0; }
+  .tip { font-size: 13px; color: var(--muted); } .tip code { color: var(--text); background: #212922; padding: 1px 5px; border-radius: 4px; }
+  .grid2 { display: grid; gap: 16px; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span id="dot" class="dot"></span><span id="name">Buddy</span></h1>
+  <span class="goal" id="goal">connecting…</span>
+  <span class="bars">
+    <span>❤ <span class="bar"><i id="hp" style="background:var(--red)"></i></span></span>
+    <span>🍗 <span class="bar"><i id="food" style="background:var(--amber)"></i></span></span>
+  </span>
+  <span class="muted" id="pos"></span>
+  <span class="muted" id="jev"></span>
+</header>
+<main>
+  <div class="grid2">
+    <section>
+      <h2>Current plan</h2>
+      <div id="planchain" style="font-size:15px;font-weight:600;color:var(--amber)">nothing planned right now</div>
+      <div id="plantext" class="muted" style="margin-top:4px"></div>
+      <div id="slots" class="muted" style="margin-top:4px"></div>
+    </section>
+    <section>
+      <h2>Practice <span id="pstate" class="muted"></span></h2>
+      <div class="progress"><i id="pbar" style="width:0"></i></div>
+      <div class="muted" id="pline" style="margin-bottom:8px"></div>
+      <ul class="ladder" id="ladder"></ul>
+    </section>
+    <section>
+      <h2>Live log</h2>
+      <div id="log"></div>
+    </section>
+  </div>
+  <div class="grid2">
+    <section>
+      <h2>Recent practice</h2>
+      <ul class="list" id="recent"></ul>
+    </section>
+    <section>
+      <h2>Skills he's learned <span id="skillcount" class="muted"></span></h2>
+      <ul class="list" id="skills"></ul>
+    </section>
+    <section>
+      <h2>Lessons from mistakes</h2>
+      <ul class="list" id="lessons"></ul>
+    </section>
+    <section>
+      <h2>Inventory</h2>
+      <div class="chips" id="inv"></div>
+    </section>
+    <section>
+      <h2>Places he remembers</h2>
+      <div class="chips" id="places"></div>
+    </section>
+    <section>
+      <h2>Watch him in-game</h2>
+      <div class="tip">In your Minecraft chat: <code>/gamemode spectator</code> then <code>/spectate <span class="bname">Buddy</span></code> to see through his eyes.
+        <code>/gamemode survival</code> to go back. Start practice with <code>!practice on</code>.</div>
+    </section>
+  </div>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id)
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e }
+  const fill = (node, items) => { node.replaceChildren(...items) }
+  let stick = true
+  $('log').addEventListener('scroll', () => { const l = $('log'); stick = l.scrollTop + l.clientHeight >= l.scrollHeight - 30 })
+
+  async function tick () {
+    let s
+    try { s = await (await fetch('/status', { cache: 'no-store' })).json() } catch { $('goal').textContent = 'bot not running'; $('dot').className = 'dot'; return }
+    $('name').textContent = s.name
+    document.querySelectorAll('.bname').forEach(n => { n.textContent = s.name })
+    $('dot').className = 'dot' + (s.online ? ' on' : '')
+    $('goal').textContent = s.online ? s.goal : 'not in the world'
+    $('hp').style.width = (s.health / 20 * 100) + '%'
+    $('food').style.width = (s.food / 20 * 100) + '%'
+    $('pos').textContent = s.pos ? `${s.pos.x} ${s.pos.y} ${s.pos.z}` : ''
+    $('jev').textContent = s.jev
+
+    // the chain of steps he's working through, outermost goal first
+    if (s.plan && s.plan.stack && s.plan.stack.length) {
+      $('planchain').textContent = s.plan.stack.join('  →  ')
+      $('plantext').textContent = s.plan.text || ''
+    } else {
+      $('planchain').textContent = 'nothing planned right now'
+      $('plantext').textContent = ''
+    }
+    $('slots').textContent = s.freeSlots == null ? '' : `${s.freeSlots} free inventory slots` + (s.freeSlots < 3 ? ' (will put extras in a chest)' : '')
+
+    const p = s.practice
+    $('pstate').textContent = p.on ? '— ON' : '— off (type !practice on)'
+    $('pbar').style.width = (p.ladderDone / p.ladderTotal * 100) + '%'
+    $('pline').textContent = `${p.ladderDone} / ${p.ladderTotal} on the ladder` + (p.current ? ` · now: ${p.current}` : '') + ` · next: ${p.next}`
+    fill($('ladder'), s.ladder.map(t => {
+      const li = el('li')
+      const state = p.current === t ? 'now' : p.completed.includes(t) ? 'done' : p.gaveUp.includes(t) ? 'gave' : 'todo'
+      li.append(el('span', { done: '✔', now: '▶', gave: '✖', todo: '·' }[state], 'mark ' + state), el('span', t, state))
+      return li
+    }).concat(p.completed.filter(t => !s.ladder.includes(t)).map(t => { const li = el('li'); li.append(el('span', '★', 'mark done'), el('span', t, 'done')); return li })))
+
+    fill($('recent'), p.recent.length ? p.recent.map(r => el('li', `${r.ok ? '✔' : '✖'} ${r.task}${r.ok ? (r.secs ? ` (${r.secs}s)` : '') : ' — ' + (r.error || '').slice(0, 120)}`, r.ok ? 'done' : 'gave')) : [el('li', 'nothing yet', 'muted')])
+    $('skillcount').textContent = `(${s.skillCount})`
+    fill($('skills'), s.skills.length ? s.skills.map(k => el('li', `${k.task}  · worked ${k.uses}×${k.fails ? `, failed ${k.fails}×` : ''}`)) : [el('li', 'none yet', 'muted')])
+    fill($('lessons'), s.lessons.length ? s.lessons.map(l => el('li', l)) : [el('li', 'none yet', 'muted')])
+    fill($('inv'), s.inventory.length ? s.inventory.map(i => el('span', `${i.count} ${i.name.replace(/_/g, ' ')}`, 'chip')) : [el('span', 'empty', 'muted')])
+    const places = Object.entries(s.places || {})
+    fill($('places'), places.length ? places.map(([k, v]) => el('span', `${k}: ${v.x} ${v.y} ${v.z}`, 'chip')) : [el('span', 'none yet', 'muted')])
+
+    const log = $('log')
+    fill(log, s.log.map(l => { const d = el('div', null, l.tag); d.append(el('span', l.t + ' ', 't'), el('span', `[${l.tag}] `, 'tag'), document.createTextNode(l.text)); return d }))
+    if (stick) log.scrollTop = log.scrollHeight
+  }
+  tick(); setInterval(tick, 1500)
+</script>
+</body>
+</html>

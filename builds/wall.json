@@ -1,0 +1,13 @@
+{
+  "name": "wall",
+  "description": "9-block long, 3-tall defensive stone wall with battlements on top.",
+  "palette": {
+    "S": "cobblestone"
+  },
+  "layers": [
+    ["SSSSSSSSS"],
+    ["SSSSSSSSS"],
+    ["SSSSSSSSS"],
+    ["S S S S S"]
+  ]
+}

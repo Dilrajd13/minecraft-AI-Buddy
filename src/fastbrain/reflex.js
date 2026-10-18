@@ -10,7 +10,8 @@ export function reflexDecide (bot, state, ctx) {
   const hasFood = !!bestFood(bot)
 
   if (!near) {
-    if (bot.health <= 14 && hasFood && bot.food < 20) return { action: 'eat' }
+    // eat when hurt, or simply hungry (hunger bar at 14/20 or lower)
+    if (hasFood && ((bot.health <= 14 && bot.food < 20) || bot.food <= 14)) return { action: 'eat' }
     return { action: 'pursue_goal' }
   }
 

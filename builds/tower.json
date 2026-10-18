@@ -1,0 +1,22 @@
+{
+  "name": "tower",
+  "description": "5x5 stone watchtower, 7 tall: doorway, ladder up the inside, windows, open top with battlements.",
+  "palette": {
+    "S": "cobblestone",
+    "G": "glass_pane",
+    "D": "door",
+    "H": "ladder",
+    "T": "torch",
+    ".": "air"
+  },
+  "layers": [
+    ["SSSSS", "SSSSS", "SSSSS", "SSSSS", "SSSSS"],
+    ["SSSSS", "SH.TS", "S...S", "S...S", "SSDSS"],
+    ["SSSSS", "SH..S", "S...S", "S...S", "SSDSS"],
+    ["SSSSS", "SH..S", "G...G", "S...S", "SSSSS"],
+    ["SSSSS", "SH..S", "S...S", "S...S", "SSGSS"],
+    ["SSSSS", "SH..S", "S...S", "S...S", "SSSSS"],
+    ["SSSSS", "S.SSS", "SSSSS", "SSSSS", "SSSSS"],
+    ["S S S", "     ", "S   S", "     ", "S S S"]
+  ]
+}

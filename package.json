@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "check": "node --check src/index.js && node src/selftest.js"
+    "check": "node --check src/index.js && node src/selftest.js && node src/plannertest.js --quiet"
   },
   "engines": {
     "node": ">=20"
@@ -17,6 +17,7 @@
     "mineflayer-collectblock": "^1.4.1",
     "mineflayer-pathfinder": "^2.4.5",
     "mineflayer-pvp": "^1.3.2",
+    "prismarine-schematic": "^1.3.0",
     "vec3": "^0.2.0"
   }
 }

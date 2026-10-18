@@ -46,6 +46,19 @@ export function watchEvents (bot, app) {
 
   bot.on('chat', () => { state.lastChatAt = Date.now() })
 
+  // Things worth remembering on their own, without anyone asking
+  const spot = (pos) => ({ x: Math.floor(pos.x), y: Math.floor(pos.y), z: Math.floor(pos.z), dimension: bot.game?.dimension })
+  bot.on('death', () => {
+    if (bot.entity) app.memory?.remember('place', 'where I last died', null, spot(bot.entity.position))
+  })
+  const ORE_NOTES = { diamond: 'diamonds', ancient_debris: 'ancient debris', emerald: 'emeralds', gold: 'gold', iron: 'iron', redstone: 'redstone', lapis: 'lapis' }
+  bot.on('diggingCompleted', (block) => {
+    const m = block?.name?.match(/(?:deepslate_)?(diamond|emerald|gold|iron|redstone|lapis)_ore|ancient_debris/)
+    if (!m) return
+    const what = ORE_NOTES[m[1] ?? 'ancient_debris']
+    app.memory?.remember('place', `${what} spot`, null, spot(block.position))
+  })
+
   const timer = setInterval(() => {
     if (!bot.entity) return
     const creeper = Object.values(bot.entities).find(e =>

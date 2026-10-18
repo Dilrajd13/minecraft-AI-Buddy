@@ -1,0 +1,19 @@
+{
+  "name": "hut",
+  "description": "Small 5x5 starter hut: stone floor, plank walls, two windows, a door, a torch and a flat roof.",
+  "palette": {
+    "F": "cobblestone",
+    "#": "oak_planks",
+    "R": "oak_planks",
+    "G": "glass_pane",
+    "D": "door",
+    "T": "torch",
+    ".": "air"
+  },
+  "layers": [
+    ["FFFFF", "FFFFF", "FFFFF", "FFFFF", "FFFFF"],
+    ["#####", "#T..#", "#...#", "#...#", "##D##"],
+    ["#####", "#...#", "G...G", "#...#", "##D##"],
+    ["RRRRR", "RRRRR", "RRRRR", "RRRRR", "RRRRR"]
+  ]
+}

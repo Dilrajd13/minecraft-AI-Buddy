@@ -1,0 +1,23 @@
+{
+  "name": "cabin",
+  "description": "7x7 log cabin: log corner posts, plank walls, glass windows on every side, a door, torches and a stepped roof.",
+  "palette": {
+    "F": "cobblestone",
+    "L": "oak_log",
+    "#": "oak_planks",
+    "R": "spruce_planks",
+    "G": "glass_pane",
+    "D": "door",
+    "T": "torch",
+    ".": "air"
+  },
+  "layers": [
+    ["FFFFFFF", "FFFFFFF", "FFFFFFF", "FFFFFFF", "FFFFFFF", "FFFFFFF", "FFFFFFF"],
+    ["L#####L", "#T...T#", "#.....#", "#.....#", "#.....#", "#.....#", "L##D##L"],
+    ["L##G##L", "#.....#", "G.....G", "#.....#", "G.....G", "#.....#", "L##D##L"],
+    ["L#####L", "#.....#", "#.....#", "#.....#", "#.....#", "#.....#", "L#####L"],
+    ["RRRRRRR", "RRRRRRR", "RRRRRRR", "RRRRRRR", "RRRRRRR", "RRRRRRR", "RRRRRRR"],
+    ["       ", " RRRRR ", " RRRRR ", " RRRRR ", " RRRRR ", " RRRRR ", "       "],
+    ["       ", "       ", "  RRR  ", "  RRR  ", "  RRR  ", "       ", "       "]
+  ]
+}
